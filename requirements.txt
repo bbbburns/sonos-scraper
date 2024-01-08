@@ -4,4 +4,4 @@ lxml
 toml
 influxdb_client
 urllib3
-ifconfigparser
+ifconfig-parser
