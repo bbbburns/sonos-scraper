@@ -1,0 +1,7 @@
+requests
+beautifulsoup4
+lxml
+toml
+influxdb_client
+urllib3
+ifconfigparser
