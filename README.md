@@ -1,10 +1,10 @@
-# Sonos Speaker Bandwidth Scraper
+# Sonos Speakers Bandwidth Scraper
 
 ## Purpose
 
-Collect the bandwidth metrics for a Sonos speaker.
+Collect the bandwidth metrics for one or more Sonos speakers.
 
-Publish these metric to an InfluxDB V2 time series database.
+Publish these metrics to an InfluxDB V2 time series database.
 
 Graph these metrics with Grafana to see how much bandwidth you're using on
 average.
@@ -32,7 +32,7 @@ and captures both stdout and stderr to a log file.
 
 ## Metrics Collected
 
-From: `http://192.168.1.X:1400/status/ifconfig`
+From each speaker's `http://<speaker_ip>:1400/status/ifconfig`:
 1. TX Packet Count
 2. TX Byte Count
 3. TX Packet Error Count
@@ -44,14 +44,14 @@ From: `http://192.168.1.X:1400/status/ifconfig`
 8. RX Packet Error Count
 9. RX Packet Drop Count
 
-9. Time taken to complete request to Sonos speaker (total_time)
-10. Python response.elapsed time (elapsed_time)
+10. Time taken to complete request to each Sonos speaker (total_time)
+11. Python response.elapsed time (elapsed_time)
 
 ## Implementation
 
 - Automate script run with cron
 - Import configuration with TOML (because it's what's cool with kids these days)
-- Scrape Sonos Speaker HTML page (unathenticated) with requests
+- Scrape Sonos speaker HTML pages (unauthenticated) with requests
 - Parse HTML and XML with BeautifulSoup (beautifulsoup4)
 - Parse ifconfig with ifconfigparser
 - Send data to InfluxDB 2 via the `Point` API (handles escaping and serialization internally)
@@ -70,17 +70,18 @@ region = "us-east"       # InfluxDB region tag
 
 Add one block per speaker. InfluxDB connection parameters:
 
-- InfluxDB IP
-- InfluxDB Port (default 8086)
-- InfluxDB Token
-- InfluxDB Bucket
-- InfluxDB Org
-- InfluxDB Measurement Name (suggest net)
-- InfluxDB Host Tag
-- InfluxDB Region Tag (name of your house or location)
+```toml
+[influx2]
+url = "https://192.168.1.X:8086"  # InfluxDB URL (IP and port)
+org = "your-org"                   # InfluxDB organization
+token = "your-token"               # InfluxDB auth token
+verify_ssl = false                 # Set true if using a valid cert
+bucket = "your-bucket"             # Destination bucket
+measurement = "net"                # Measurement name (suggest "net")
+```
 
 ## Limitations
-- Tested with Influx2 client and InfluxDB 2.4.7
+- Tested with Influx2 client and InfluxDB 2.7
 - Only tested on Linux systems
 - Per-speaker errors print a warning to stderr; script exits 1 if any speaker fails
 
