@@ -16,18 +16,18 @@ average.
 1. Clone this repo into some directory on some server
 2. Install the python requirements from requirements.txt
 3. Copy example-config.toml to config.toml
-4. Configure config.toml with your Sonos speaker and InfluxDB values
+4. Configure config.toml with your Sonos speakers (one `[[speakers]]` block each) and InfluxDB values
 5. Configure cron to call get-sonos-bw.py every 5 minutes
 
 ## Recommended Cron Configuration
 
 Cron needs absolute paths for things and I've referred to the config file with
 a relative path. You can fix this with a `cd`. The following executes every 5
-minutes and writes data to some temp file.
+minutes, uses the virtualenv's Python directly (so dependencies are available),
+and captures both stdout and stderr to a log file.
 
 ```crontab
-*/5 * * * * cd /your/dir && python3 /your/dir/sonos-scraper/get-sonos-bw.py >>
-/tmp/sonos-scraper.log
+*/5 * * * * cd /your/dir/sonos-scraper && .env/bin/python3 get-sonos-bw.py >> /tmp/sonos-scraper.log 2>&1
 ```
 
 ## Metrics Collected
@@ -54,12 +54,12 @@ From: `http://192.168.1.X:1400/status/ifconfig`
 - Scrape Sonos Speaker HTML page (unathenticated) with requests
 - Parse HTML and XML with BeautifulSoup (beautifulsoup4)
 - Parse ifconfig with ifconfigparser
-- Send data to InfluxDB 2 (Line Protocol because I'm too dumb to make JSON work)
+- Send data to InfluxDB 2 via the `Point` API (handles escaping and serialization internally)
 - Graph results with Grafana
 
 ## Configurable Parameters
 
-- Speaker IP
+- Speaker IP (one `[[speakers]]` block per speaker in config.toml)
 - InfluxDB IP
 - InfluxDB Port (default 8086)
 - InfluxDB Token
@@ -72,7 +72,7 @@ From: `http://192.168.1.X:1400/status/ifconfig`
 ## Limitations
 - Tested with Influx2 client and InfluxDB 2.4.7
 - Only tested on Linux systems
-- Close to zero error handling
+- Per-speaker errors print a warning to stderr; script exits 1 if any speaker fails
 
 ## Example Grafana Queries
 
