@@ -59,7 +59,17 @@ From: `http://192.168.1.X:1400/status/ifconfig`
 
 ## Configurable Parameters
 
-- Speaker IP (one `[[speakers]]` block per speaker in config.toml)
+Each speaker is configured as a `[[speakers]]` block in config.toml:
+
+```toml
+[[speakers]]
+ip = "192.168.1.X"       # Sonos speaker IP
+host = "name-sonos-1"    # InfluxDB host tag
+region = "us-east"       # InfluxDB region tag
+```
+
+Add one block per speaker. InfluxDB connection parameters:
+
 - InfluxDB IP
 - InfluxDB Port (default 8086)
 - InfluxDB Token
