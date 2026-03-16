@@ -1,6 +1,13 @@
-[speaker]
+# Add one [[speakers]] block per Sonos speaker.
+# The double brackets define a TOML array of tables.
+[[speakers]]
 ip = "192.168.1.X"
-host = "name-sonos"
+host = "name-sonos-1"
+region = "us-east"
+
+[[speakers]]
+ip = "192.168.1.Y"
+host = "name-sonos-2"
 region = "us-east"
 
 [influx2]
