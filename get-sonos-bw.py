@@ -75,6 +75,13 @@ def scrape_speaker(speaker, influx_config, influx_bucket, influx_measurement, re
     start = time.time()
     try:
         response = requests.get(speaker_bw_url, timeout=10)
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+        print(
+            f"WARNING: could not reach {speaker_host} ({speaker_ip}): {e}\n"
+            f"  The speaker's IP may have changed — re-run discover-sonos.py to refresh config.toml",
+            file=sys.stderr,
+        )
+        return False
     except requests.exceptions.RequestException as e:
         print(f"WARNING: request failed for {speaker_host} ({speaker_ip}): {e}", file=sys.stderr)
         return False

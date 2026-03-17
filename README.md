@@ -128,6 +128,7 @@ measurement = "net"                # Measurement name (suggest "net")
 - Tested with Influx2 client and InfluxDB 2.7
 - Only tested on Linux systems
 - Per-speaker errors print a warning to stderr; script exits 1 if any speaker fails
+- Speaker IPs are stored statically in config.toml — if a speaker's IP changes (DHCP reassignment), scraping will silently produce gaps in Grafana. Configure DHCP reservations for your speakers, or re-run `discover-sonos.py --output config.toml` to refresh. The scraper will print a specific warning suggesting this when a speaker is unreachable.
 
 ## Example Grafana Queries
 
