@@ -15,9 +15,51 @@ average.
 
 1. Clone this repo into some directory on some server
 2. Install the python requirements from requirements.txt
-3. Copy example-config.toml to config.toml
-4. Configure config.toml with your Sonos speakers (one `[[speakers]]` block each) and InfluxDB values
+3. Run `discover-sonos.py` to auto-generate config.toml (see below), or copy example-config.toml and fill it in manually
+4. Fill in the `[influx2]` section of config.toml with your InfluxDB credentials
 5. Configure cron to call get-sonos-bw.py every 5 minutes
+
+## Discovering Speaker IPs and Names
+
+`discover-sonos.py` scans your local network for Sonos speakers and generates a ready-to-use config.toml with correct IPs and names.
+
+**SSDP discovery (recommended)** — no arguments needed, works on any network:
+
+```bash
+python3 discover-sonos.py
+```
+
+**With TCP fallback** — useful if SSDP multicast is blocked on your network (must be /20 or smaller):
+
+```bash
+python3 discover-sonos.py --subnet 192.168.1.0/24
+```
+
+**Write directly to config.toml:**
+
+```bash
+python3 discover-sonos.py --output config.toml
+```
+
+If `config.toml` already exists, the existing `[influx2]` credentials are preserved and only the `[[speakers]]` blocks are regenerated.
+
+**All options:**
+
+```
+--subnet SUBNET    CIDR range for TCP port scan fallback (e.g. 192.168.1.0/24)
+--region REGION    Region tag for all discovered speakers (default: us-east)
+--output OUTPUT    Write config to this file (prints to stdout if omitted)
+--timeout TIMEOUT  SSDP discovery timeout in seconds (default: 3)
+```
+
+The script uses SSDP multicast to find all Sonos speakers, then fetches each speaker's user-assigned room name via UPnP. Bonded speakers (soundbar + sub + surround pair) are detected automatically from the zone topology and named with role suffixes:
+
+| Role | Example host tag |
+|---|---|
+| Soundbar (coordinator) | `living-room-sonos` |
+| Sub | `living-room-sub-sonos` |
+| Left surround | `living-room-left-surround-sonos` |
+| Right surround | `living-room-right-surround-sonos` |
 
 ## Recommended Cron Configuration
 
@@ -49,6 +91,8 @@ From each speaker's `http://<speaker_ip>:1400/status/ifconfig`:
 
 ## Implementation
 
+- `discover-sonos.py` — finds speakers via SSDP multicast; fetches room names and bonding roles via UPnP SOAP; generates config.toml
+- `get-sonos-bw.py` — reads config.toml, scrapes each speaker, writes metrics to InfluxDB
 - Automate script run with cron
 - Import configuration with TOML (because it's what's cool with kids these days)
 - Scrape Sonos speaker HTML pages (unauthenticated) with requests
