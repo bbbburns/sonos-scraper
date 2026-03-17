@@ -9,7 +9,7 @@ Publish these metrics to an InfluxDB V2 time series database.
 Graph these metrics with Grafana to see how much bandwidth you're using on
 average.
 
-![Grafana Screenshot](att-scraper-grafana-screenshot.png)
+![Grafana Screenshot](grafana-sonos.png)
 
 ## Usage
 
